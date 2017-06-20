@@ -49,7 +49,7 @@ class FileSystem:
 		# se não tem o item que guarda o próximo item a ser salvo, é pq o banco de dados está vazio
 		# então precisamos criar este item e o item da pasta raiz
 		if not self.__db.isValidKey("NextId"):
-			self.__db.add("NextId", 1);
+			self.__db.add("NextId", 1)
 			baseFolderItem = FileSystemItem("folder","root", self.__baseFolder, self.__baseFolder)
 			self.__db.add(self.__baseFolder, baseFolderItem)
 
@@ -59,14 +59,17 @@ class FileSystem:
 	def getItem(self, itemId):
 		return self.__db.get(itemId)
 
-	def __createItem(self, itemName, itemData, itemType, parentFolderId):
-		if not self.__db.isValidKey(parentFolderId):
-			return False;
+	def itemExists(self, itemId):
+		return self.__db.isValidKey(itemId)
+
+	def createItem(self, itemName, itemData, itemType, parentFolderId):
+		if not self.itemExists(parentFolderId):
+			return False
 		
 		parentItem = self.getItem(parentFolderId)
 
 		if not parentItem.isFolder():
-			return False;
+			return False
 
 		item = FileSystemItem(itemType, itemName, self.__createId(), parentFolderId, itemData)
 		parentItem.addItem(item.getId())
@@ -76,11 +79,21 @@ class FileSystem:
 
 		return item.getId()
 
+	def addItem(self, folderId, itemId):
+		if not self.itemExists(folderId) or not self.itemExists(itemId):
+			return False
+		folder = self.getItem(folderId)
+		if not folder.isFolder():
+			return False
+		folder.addItem(itemId)
+		self.__saveItem(folder)
+		return True
+
 	def createFolder(self, folderName, parentFolderId = "0"):
-		return self.__createItem(folderName, [], 'folder', parentFolderId)
+		return self.createItem(folderName, [], 'folder', parentFolderId)
 
 	def createFile(self, fileName, fileData, parentFolderId = "0"):
-		return self.__createItem(fileName, fileData, 'file', parentFolderId)
+		return self.createItem(fileName, fileData, 'file', parentFolderId)
 
 	def addPermission(self, itemId, userId):
 		item = self.getItem(itemId)
@@ -89,21 +102,21 @@ class FileSystem:
 
 	def canOpen(self, itemId, userId):
 		item = self.getItem(itemId)
-		if item.canOpen(userId):
+		if itemId == '0':
+			return False
+		elif item.canOpen(userId):
 			return True
 		else:
 			return self.canOpen(item.getParentId(), userId)
 
 def fileSysTest():
 	testFs = FileSystem()
-	id = testFs.createFolder("Lucas folder")
-	testFs.createFile("arq1", "meus dados 1", id)
-	testFs.createFile("arq2", "meus dados 2", id)
-	folder = testFs.getItem(id)
-	print("arquivos da pasta " + folder.getName())
-	for it in folder.getData():
-		print(testFs.getItem(it).getName())
-		print(testFs.getItem(it).getData())
+	id = "0"
+	folderItems = list(map(lambda x : testFs.getItem(x).getName(), testFs.getItem(id).getData()))
+	print(*folderItems)
+	print("Os arquivos da pasta:")
+	for i in testFs.getItem(id).getData():
+		print(testFs.getItem(i).getName() + ": " + str(list(testFs.getItem(i).getData())))
 
 if __name__ == '__main__':
 	fileSysTest()
