@@ -1,4 +1,4 @@
-from DataBase import DataBase 
+from DataBase import DataBase
 
 class Client:
 	def __init__(self, login, password, rootFolder, sharedFolder):
@@ -25,10 +25,10 @@ class ClientManager:
 
 	def addClient(self, login, password, rootFolder, sharedFolder):
 		client = Client(login, password, rootFolder, sharedFolder)
-		self._db.add(login, client)
+		self.__db.add(login, client)
 
 	def getClient(self, login):
-		return self._db.get(login)
+		return self.__db.get(login)
 
 	def isValidLogin(self, login):
 		return self.__db.isValidKey(login)

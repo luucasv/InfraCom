@@ -21,7 +21,7 @@ class SystemManager:
 
 	def __itemExists(self, itemId):
 		return self.__fileSystem.itemExists(itemId)
-		
+
 	def addPermision(self, itemId, who, to):
 		if not self.__userExists(who) or not self.__userExists(to):
 			return False
@@ -52,10 +52,9 @@ class SystemManager:
 			parentId = client.getRootFolder()
 		if not self.__itemExists(parentId):
 			return False
-		if not self.__fileSystem.canOpen(parentId, who)
+		if not self.__fileSystem.canOpen(parentId, who):
 			return False
-		return self.__fileSystem.createFile(itemName, itemData, type, parentId)
+		return self.__fileSystem.createItem(itemName, itemData, type, parentId)
 
 	def authenticate(self, login, password):
 		return self.__clientManager.authenticate(login, password)
-

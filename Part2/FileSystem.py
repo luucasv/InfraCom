@@ -10,7 +10,7 @@ class FileSystemItem:
 			self.__data = []
 		else:
 			self.__data = fileData
-		self.__usersAllowed = {}
+		self.__usersAllowed = set({})
 
 	def isFolder(self):
 		return self.__type == 'folder'
@@ -33,6 +33,9 @@ class FileSystemItem:
 
 	def addPermission(self, userId):
 		self.__usersAllowed = self.__usersAllowed | {userId}
+
+	def getPermission(self):
+		return self.__usersAllowed
 
 	def canOpen(self, userId):
 		return userId in self.__usersAllowed
@@ -65,7 +68,7 @@ class FileSystem:
 	def createItem(self, itemName, itemData, itemType, parentFolderId):
 		if not self.itemExists(parentFolderId):
 			return False
-		
+
 		parentItem = self.getItem(parentFolderId)
 
 		if not parentItem.isFolder():
@@ -73,7 +76,7 @@ class FileSystem:
 
 		item = FileSystemItem(itemType, itemName, self.__createId(), parentFolderId, itemData)
 		parentItem.addItem(item.getId())
-		
+
 		self.__saveItem(parentItem)
 		self.__saveItem(item)
 
@@ -98,6 +101,7 @@ class FileSystem:
 	def addPermission(self, itemId, userId):
 		item = self.getItem(itemId)
 		item.addPermission(userId)
+		print(item.getPermission())
 		self.__saveItem(item)
 
 	def canOpen(self, itemId, userId):
