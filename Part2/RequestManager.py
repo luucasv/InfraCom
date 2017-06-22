@@ -23,13 +23,22 @@ class RequestManager:
 				return RequestManager.__userCreated
 		elif not self.__systemManager.authenticate(request['login'], request['password']):
 			return RequestManager.__invalidLogin
-		elif request["type"] == "GET":
+		elif request["type"].startswith('GET_ITEM'):
 			if not "itemId" in request:
 				return RequestManager.__invalidRequest
 			item = self.__systemManager.getItem(request["itemId"], request['login'])
 			if type(item) is bool and not item:
 				return RequestManager.__invalidRequest
-			return {"status": "OK", "code": 200, "answer": pickle.dumps(item, pickle.HIGHEST_PROTOCOL)}
+			if request['type'] == 'GET_ITEM_NAME':
+				return {"status": "OK", "code": 200, "answer": item.getName()}
+			elif request['type'] == 'GET_ITEM_DATA':
+				return {"status": "OK", "code": 200, "answer": item.getData()}
+			elif request['type'] == 'GET_ITEM_TYPE':
+				return {"status": "OK", "code": 200, "answer": item.getType()}
+			elif request['type'] == 'GET_ITEM_PARENT':
+				return {"status": "OK", "code": 200, "answer": item.getParentId()}
+			else:
+				return RequestManager.__invalidRequest
 		elif request["type"] == "CREATE_FOLDER":
 			if not "where" in request:
 				return RequestManager.__invalidRequest
@@ -50,13 +59,21 @@ class RequestManager:
 			if type(createdId) is bool and not createdId:
 				return RequestManager.__invalidRequest
 			return {"status": "OK", "code": 200, "answer": createdId}
+		elif request["type"] == "GET_ROOT_FOLDER":
+			client = self.__systemManager.getClient(request['login'])
+			return {"status": "OK", "code": 200, "answer": client.getRootFolder()}
+		elif request['type'] == 'GET_SHARED_FOLDER':
+			client = self.__systemManager.getClient(request['login'])
+			return {"status": "OK", "code": 200, "answer": client.getSharedFolder()}
+		else:
+			return SystemManager.__invalidRequest
 
 def getReq():
 	req = {}
 	req['type'] = input()
 	req['login'] = input()
 	req['password'] = input()
-	if req['type'] == 'GET':
+	if req['type'].startswith('GET_ITEM'):
 		req['itemId'] = input()
 	elif req['type'] == 'CREATE_FILE':
 		req['where'] = input()
@@ -72,6 +89,4 @@ if __name__ == "__main__":
 	while True:
 		req = getReq()
 		res = rm.processRequest(req)
-		if req['type'] == 'GET':
-			res['answer'] = pickle.loads(res['answer']).getData()
 		print(str(res))

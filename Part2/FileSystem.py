@@ -15,7 +15,7 @@ class FileSystemItem:
 	def isFolder(self):
 		return self.__type == 'folder'
 
-	def addItem(self, itemId):
+	def insertIdIntoFolderList(self, itemId):
 		if self.isFolder():
 			self.__data.append(itemId)
 
@@ -31,6 +31,9 @@ class FileSystemItem:
 	def getParentId(self):
 		return self.__parentId
 
+	def getType(self):
+		return self.__type
+
 	def addPermission(self, userId):
 		self.__usersAllowed = self.__usersAllowed | {userId}
 
@@ -41,23 +44,23 @@ class FileSystemItem:
 		return userId in self.__usersAllowed
 
 class FileSystem:
-	def __createId(self):
-		fileId = self.__db.get('NextId')
-		self.__db.add('NextId', fileId + 1)
-		return str(fileId)
-
 	def __init__(self, folderDbName = "FileSystemDb"):
 		self.__db = DataBase(folderDbName)
 		self.__baseFolder = "0"
 		# se não tem o item que guarda o próximo item a ser salvo, é pq o banco de dados está vazio
 		# então precisamos criar este item e o item da pasta raiz
 		if not self.__db.isValidKey("NextId"):
-			self.__db.add("NextId", 1)
-			baseFolderItem = FileSystemItem("folder","root", self.__baseFolder, self.__baseFolder)
-			self.__db.add(self.__baseFolder, baseFolderItem)
+			self.__db.set("NextId", 1)
+			baseFolderItem = FileSystemItem("folder", "root", self.__baseFolder, self.__baseFolder)
+			self.__db.set(self.__baseFolder, baseFolderItem)
+	
+	def __createId(self):
+		fileId = self.__db.get('NextId')
+		self.__db.set('NextId', fileId + 1)
+		return str(fileId)
 
 	def __saveItem(self, item):
-		self.__db.add(item.getId(), item)
+		self.__db.set(item.getId(), item)
 
 	def getItem(self, itemId):
 		return self.__db.get(itemId)
@@ -75,20 +78,20 @@ class FileSystem:
 			return False
 
 		item = FileSystemItem(itemType, itemName, self.__createId(), parentFolderId, itemData)
-		parentItem.addItem(item.getId())
+		parentItem.insertIdIntoFolderList(item.getId())
 
 		self.__saveItem(parentItem)
 		self.__saveItem(item)
 
 		return item.getId()
 
-	def addItem(self, folderId, itemId):
+	def insertIdIntoFolderList(self, folderId, itemId):
 		if not self.itemExists(folderId) or not self.itemExists(itemId):
 			return False
 		folder = self.getItem(folderId)
 		if not folder.isFolder():
 			return False
-		folder.addItem(itemId)
+		folder.insertIdIntoFolderList(itemId)
 		self.__saveItem(folder)
 		return True
 
@@ -105,7 +108,7 @@ class FileSystem:
 
 	def canOpen(self, itemId, userId):
 		item = self.getItem(itemId)
-		if itemId == '0':
+		if itemId == self.__baseFolder:
 			return False
 		elif item.canOpen(userId):
 			return True

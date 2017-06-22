@@ -11,7 +11,7 @@ class DataBase:
 	def isValidKey(self, key):
 		return os.path.exists(self.__folderName + '/' + key + ".pkl")
 
-	def add(self, key, data):
+	def set(self, key, data):
 		fileName = self.__folderName + "/" + key + ".pkl";
 		with open(fileName, 'wb') as file:
 			pickle.dump(data, file, pickle.HIGHEST_PROTOCOL)

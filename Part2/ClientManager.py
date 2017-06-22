@@ -16,16 +16,16 @@ class Client:
 	def getSharedFolder(self):
 		return self.__sharedFolder
 
-	def chekPassword(self, password):
+	def checkPassword(self, password):
 		return (self.__password == password)
 
 class ClientManager:
 	def __init__(self, folderDbName = "ClientManagerDb"):
 		self.__db = DataBase(folderDbName)
 
-	def addClient(self, login, password, rootFolder, sharedFolder):
+	def createClient(self, login, password, rootFolder, sharedFolder):
 		client = Client(login, password, rootFolder, sharedFolder)
-		self.__db.add(login, client)
+		self.__db.set(login, client)
 
 	def getClient(self, login):
 		return self.__db.get(login)
@@ -34,4 +34,4 @@ class ClientManager:
 		return self.__db.isValidKey(login)
 
 	def authenticate(self, login, password):
-		return self.getClient(login).chekPassword(password);
+		return self.getClient(login).checkPassword(password);
