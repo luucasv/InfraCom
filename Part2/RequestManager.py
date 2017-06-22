@@ -1,4 +1,5 @@
 from SystemManager import SystemManager
+import pickle
 
 class RequestManager:
 	__invalidRequest = {"status": "Invalid request", "code": 404}
@@ -16,7 +17,7 @@ class RequestManager:
 		elif not "login" in request or not "password" in request:
 			return RequestManager.__invalidRequest
 		elif request['type'] == "REGISTER":
-			if self.__systemManager.createClient(request['login'], request['password']):
+			if not self.__systemManager.createClient(request['login'], request['password']):
 				return RequestManager.__loginExists
 			else:
 				return RequestManager.__userCreated
@@ -28,7 +29,7 @@ class RequestManager:
 			item = self.__systemManager.getItem(request["itemId"], request['login'])
 			if type(item) is bool and not item:
 				return RequestManager.__invalidRequest
-			return {"status": "OK", "code": 200, "answer": item}
+			return {"status": "OK", "code": 200, "answer": pickle.dumps(item, pickle.HIGHEST_PROTOCOL)}
 		elif request["type"] == "CREATE_FOLDER":
 			if not "where" in request:
 				return RequestManager.__invalidRequest
@@ -71,4 +72,6 @@ if __name__ == "__main__":
 	while True:
 		req = getReq()
 		res = rm.processRequest(req)
+		if req['type'] == 'GET':
+			res['answer'] = pickle.loads(res['answer']).getData()
 		print(str(res))

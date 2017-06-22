@@ -101,7 +101,6 @@ class FileSystem:
 	def addPermission(self, itemId, userId):
 		item = self.getItem(itemId)
 		item.addPermission(userId)
-		print(item.getPermission())
 		self.__saveItem(item)
 
 	def canOpen(self, itemId, userId):
