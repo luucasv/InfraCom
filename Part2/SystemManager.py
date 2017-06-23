@@ -32,6 +32,9 @@ class SystemManager:
 		client = self.getClient(who)
 		return client.getSharedFolder() == itemId or client.getRootFolder() == itemId
 
+	def __root(self, itemId):
+		return self.__fileSystem.root(itemId)
+
 	def getItemName(self, who, itemId):
 		if not self.__canOpen(who, itemId):
 			return False
@@ -88,6 +91,8 @@ class SystemManager:
 		if not self.__canOpen(who, itemId) or not self.__canOpen(who, toFolder):
 			return False
 		if self.__isDefaultFolder(who, itemId):
+			return False
+		if self.__root(itemId) != self.__root(toFolder):
 			return False
 		return self.__fileSystem.moveItem(itemId, toFolder)
 

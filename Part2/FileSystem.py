@@ -86,6 +86,12 @@ class FileSystem:
 
 		return item.getId()
 
+	def root(self, itemId):
+		parentId = self.__getItem(itemId).getParentId() 
+		if parentId == self.__baseFolder:
+			return itemId
+		return self.root(parentId)
+
 	def itemExists(self, itemId):
 		return self.__db.isValidKey(itemId)
 
