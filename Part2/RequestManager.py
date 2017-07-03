@@ -1,5 +1,4 @@
 from SystemManager import SystemManager
-import pickle
 
 class RequestManager:
 	__invalidRequest = {"status": "Invalid request", "code": 404}
