@@ -9,6 +9,7 @@ class RequestManager:
 	__itemRenamed = {"status": "Rename OK", "code": 203, "answer": "Item renamed"}
 	__itemMoved = {"status": "Move OK", "code": 204, "answer": "Item moved"}
 	__fileEdited = {"status": "Edit OK", "code": 205, "answer": "File edited"}
+	__authOk = {"status": "Auth OK", "code": 206, "answer": "Login and password match"}
 	def __init__(self):
 		self.__systemManager = SystemManager()
 
@@ -16,7 +17,7 @@ class RequestManager:
 		if not type(request) is dict:
 			return RequestManager.__invalidRequest
 		elif not "type" in request:
-			return RequestManager.__invalidRequest
+			return RequestManager.__invalidReques
 		elif not "login" in request or not "password" in request:
 			return RequestManager.__invalidRequest
 		elif request['type'] == "REGISTER":
@@ -26,6 +27,8 @@ class RequestManager:
 				return RequestManager.__userCreated
 		elif not self.__systemManager.authenticate(request['login'], request['password']):
 			return RequestManager.__invalidLogin
+		elif request["type"] == 'AUTHENTICATE':
+			return RequestManager.__authOk
 		elif request["type"].startswith('GET_ITEM'):
 			if not "itemId" in request:
 				return RequestManager.__invalidRequest
