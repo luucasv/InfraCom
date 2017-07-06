@@ -1,106 +1,178 @@
 from SystemManager import SystemManager
 
+class Messages:
+	invalidRequest = {
+		'status': 'Error', 
+		'code': 404, 
+		'answer': 'Invalid Request'
+	}
+	loginExists = {
+		'status': 'Error',
+		'code': 401,
+		'answer': 'Login already exists'
+	}
+	invalidLoginOrPassWord = {
+		'status': 'Error',
+		'code': 402,
+		'answer': 'Invalid login or password'
+	}
+	getError = {
+		'status': 'Error',
+		'code': 403,
+		'answer': 'File or directory doesnt exist'
+	}
+	getOK = {
+		'status': 'Success',
+		'code': 200
+	}
+	userCreated = {
+		'status': 'Success',
+		'code': 201,
+		'answer': 'User created'
+	}
+	permissionGiven = {
+		'status': 'Success',
+		'code': 202,
+		'answer': 'Permission given'
+	}
+	itemRenamed = {
+		'status': 'Success',
+		'code': 203,
+		'answer': 'Item renamed'
+	}
+	itemMoved = {
+		'status': 'Success',
+		'code': 204,
+		'answer': 'Item moved'
+	}
+	fileEdited = {
+		'status': 'Success',
+		'code': 205,
+		'answer': 'File edited'
+	}
+	authOk = {
+		'status': 'Success',
+		'code': 206,
+		'answer': 'Successfull authentication'
+	}
+	folderCreated = {
+		'status': 'Success',
+		'code': 207,
+		'answer': 'Folder Created'
+	}
+	fileCreated = {
+		'status': 'Success',
+		'code': 208,
+		'answer': 'File Created'
+	}
+
 class RequestManager:
-	__invalidRequest = {"status": "Invalid request", "code": 404}
-	__loginExists = {"status": "Login already exists", "code": 401}
-	__userCreated = {"status": "Register OK", "code": 201, "answer": "User created"}
-	__invalidLogin = {"status": "Invalid login or password", "code": 400}
-	__permissionGiven = {"status": "Permission OK", "code": 202, "answer": "Permission given"}
-	__itemRenamed = {"status": "Rename OK", "code": 203, "answer": "Item renamed"}
-	__itemMoved = {"status": "Move OK", "code": 204, "answer": "Item moved"}
-	__fileEdited = {"status": "Edit OK", "code": 205, "answer": "File edited"}
-	__authOk = {"status": "Auth OK", "code": 206, "answer": "Login and password match"}
 	def __init__(self):
 		self.__systemManager = SystemManager()
 
 	def processRequest(self, request):
 		if not type(request) is dict:
-			return RequestManager.__invalidRequest
-		elif not "type" in request:
-			return RequestManager.__invalidReques
-		elif not "login" in request or not "password" in request:
-			return RequestManager.__invalidRequest
-		elif request['type'] == "REGISTER":
+			return Messages.invalidRequest
+
+		elif not 'type' in request:
+			return Messages.invalidRequest
+		
+		elif not 'login' in request or not 'password' in request:
+			return Messages.invalidRequest
+		
+		elif request['type'] == 'REGISTER':
 			if not self.__systemManager.createClient(request['login'], request['password']):
-				return RequestManager.__loginExists
+				return Messages.loginExists
 			else:
-				return RequestManager.__userCreated
+				return Messages.userCreated
+		
 		elif not self.__systemManager.authenticate(request['login'], request['password']):
-			return RequestManager.__invalidLogin
-		elif request["type"] == 'AUTHENTICATE':
-			return RequestManager.__authOk
-		elif request["type"].startswith('GET_ITEM'):
-			if not "itemId" in request:
-				return RequestManager.__invalidRequest
+			return Messages.invalidLoginOrPassWord
+		
+		elif request['type'] == 'AUTHENTICATE':
+			return Messages.authOk
+		
+		elif request['type'].startswith('GET_ITEM'):
+			if not 'itemId' in request:
+				return Messages.invalidRequest
 			answer = False
 			if request['type'] == 'GET_ITEM_NAME':
-				answer = self.__systemManager.getItemName(request["login"], request['itemId'])
+				answer = self.__systemManager.getItemName(request['login'], request['itemId'])
 			elif request['type'] == 'GET_ITEM_DATA':
-				answer = self.__systemManager.getItemData(request["login"], request['itemId'])
+				answer = self.__systemManager.getItemData(request['login'], request['itemId'])
 			elif request['type'] == 'GET_ITEM_TYPE':
-				answer = self.__systemManager.getItemType(request["login"], request['itemId'])
+				answer = self.__systemManager.getItemType(request['login'], request['itemId'])
 			elif request['type'] == 'GET_ITEM_PARENT':
-				answer = self.__systemManager.getItemParentId(request["login"], request['itemId'])
+				answer = self.__systemManager.getItemParentId(request['login'], request['itemId'])
 			if type(answer) is bool and not answer:
-				return RequestManager.__invalidRequest
-			return {"status": "OK", "code": 200, "answer": answer}
+				return Messages.getError
+			else:
+				return dict(Messages.getOK, **{'answer': answer})
 
-		elif request["type"] == "CREATE_FOLDER":
-			if not "where" in request:
-				return RequestManager.__invalidRequest
-			if not "name" in request:
-				return RequestManager.__invalidRequest
+		elif request['type'] == 'CREATE_FOLDER':
+			if not 'where' in request:
+				return Messages.invalidRequest
+			if not 'name' in request:
+				return Messages.invalidRequest
 			createdId = self.__systemManager.createFolder(request['login'], request['name'], request['where'])
 			if type(createdId) is bool and not createdId:
-				return RequestManager.__invalidRequest
-			return {"status": "OK", "code": 200, "answer": createdId}
-		elif request["type"] == "CREATE_FILE":
-			if not "where" in request:
-				return RequestManager.__invalidRequest
-			if not "name" in request:
-				return RequestManager.__invalidRequest
-			if not "data" in request:
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
+			return Messages.folderCreated
+
+		elif request['type'] == 'CREATE_FILE':
+			if not 'where' in request:
+				return Messages.invalidRequest
+			if not 'name' in request:
+				return Messages.invalidRequest
+			if not 'data' in request:
+				return Messages.invalidRequest
 			createdId = self.__systemManager.createFile(request['login'], request['name'], request['data'], request['where'])
 			if type(createdId) is bool and not createdId:
-				return RequestManager.__invalidRequest
-			return {"status": "OK", "code": 200, "answer": createdId}
-		elif request["type"] == "GET_ROOT_FOLDER":
+				return Messages.invalidRequest
+			return Messages.fileCreated
+		
+		elif request['type'] == 'GET_ROOT_FOLDER':
 			client = self.__systemManager.getClient(request['login'])
-			return {"status": "OK", "code": 200, "answer": client.getRootFolder()}
+			return dict(Messages.getOK, **{'answer': client.getRootFolder()})
+		
 		elif request['type'] == 'GET_SHARED_FOLDER':
 			client = self.__systemManager.getClient(request['login'])
-			return {"status": "OK", "code": 200, "answer": client.getSharedFolder()}
-		elif request["type"] == "SHARE_ITEM":
+			return dict(Messages.getOK, **{'answer': client.getSharedFolder()})
+		
+		elif request['type'] == 'SHARE_ITEM':
 			if not 'itemId' in request or not 'toLogin' in request:
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			if not self.__systemManager.addPermission(request['itemId'], request['login'], request['toLogin']):
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			else:
-				return RequestManager.__permissionGiven
-		elif request["type"] == "RENAME_ITEM":
+				return Messages.permissionGiven
+		
+		elif request['type'] == 'RENAME_ITEM':
 			if not 'itemId' in request or not 'newName' in request:
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			if not self.__systemManager.renameItem(request['login'], request['itemId'], request['newName']):
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			else:
-				return RequestManager.__itemRenamed
-		elif request["type"] == "EDIT_FILE_DATA":
+				return Messages.itemRenamed
+		
+		elif request['type'] == 'EDIT_FILE_DATA':
 			if not 'fileId' in request or not 'newData' in request:
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			if not self.__systemManager.editFileData(request['login'], request['fileId'], request['newData']):
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			else:
-				return RequestManager.__fileEdited
-		elif request["type"] == "MOVE_ITEM":
+				return Messages.fileEdited
+		
+		elif request['type'] == 'MOVE_ITEM':
 			if not 'itemId' in request or not 'newParent' in request:
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			if not self.__systemManager.moveItem(request['login'], request['itemId'], request['newParent']):
-				return RequestManager.__invalidRequest
+				return Messages.invalidRequest
 			else:
-				return RequestManager.__itemMoved
+				return Messages.itemMoved
+		
 		else:
-			return RequestManager.__invalidRequest
+			return Messages.invalidRequest
 
 def getReq():
 	req = {}
@@ -130,8 +202,8 @@ def getReq():
 		req['newData'] = input()
 	return req
 
-if __name__ == "__main__":
-	rm = RequestManager()
+if __name__ == '__main__':
+	rm = Messages()
 	while True:
 		req = getReq()
 		res = rm.processRequest(req)

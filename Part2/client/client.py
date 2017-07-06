@@ -9,9 +9,13 @@ def main():
 
 	host = sys.argv[1]
 	port = int(sys.argv[2])
-	 
-	NetworkManager.connect((host, port))
-
+	
+	try:
+		NetworkManager.connect((host, port))
+	except :
+		print('Unable to connect. Maybe the server is not up.')
+		sys.exit()
+	
 	print('Welcome to InfraComDrive betha 2.0.0')
 	ApplicationManager.createDownloadFolder()
 	while True:

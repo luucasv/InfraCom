@@ -35,9 +35,5 @@ class NetworkManager:
 
 	def connect(pair):
 		NetworkManager.sock.settimeout(None)
-	 
-		try :
-			NetworkManager.sock.connect(pair)
-		except :
-			print('Unable to connect. Maybe the server is not up.')
-			sys.exit()
+		NetworkManager.sock.connect(pair)
+		

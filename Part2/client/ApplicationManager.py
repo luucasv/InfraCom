@@ -29,8 +29,8 @@ class Functions:
 		req['login'] = ApplicationManager.userLogin
 		req['password'] = ApplicationManager.userPassword
 		NetworkManager.sendRequest(req)
-		response = NetworkManager.recvResponse()
-		return str(response['code']) + ' ' + response['status']
+		return NetworkManager.recvResponse()['answer']
+
 
 	def __authenticate(login, password):
 		req = {}
@@ -38,16 +38,15 @@ class Functions:
 		req['login'] = login
 		req['password'] = password
 		NetworkManager.sendRequest(req)
-		return NetworkManager.recvResponse()['status']
+		return NetworkManager.recvResponse()['answer']
 
 	def __regiter(login, password):
 		req = {}
 		req['type'] = 'REGISTER'
-		req['login'] = input('Please enter your login: ')
-		req['password'] = getpass.getpass('Please enter your password: ')
+		req['login'] = login
+		req['password'] = password
 		NetworkManager.sendRequest(req)
-		response = NetworkManager.recvResponse()
-		return str(response['code']) + ' ' + response['status']
+		return NetworkManager.recvResponse()['answer']
 
 	def __creatItem(name, type, where, itemData = ''):
 		req = {}
@@ -61,8 +60,7 @@ class Functions:
 		req['login'] = ApplicationManager.userLogin
 		req['password'] = ApplicationManager.userPassword
 		NetworkManager.sendRequest(req)
-		response = NetworkManager.recvResponse()
-		return str(response['code']) + ' ' + response['status']
+		return NetworkManager.recvResponse()['answer']
 
 	def __getChildrenMap(currentDirId, currentDirPath):
 		currentDirChildren = {}
@@ -136,7 +134,7 @@ class Functions:
 		response = Functions.__authenticate(userLogin, userPassword)
 
 		print(response)
-		if response != "Auth OK":
+		if not response.lower().startswith('success'):
 			ApplicationManager.userLogin = ''
 			ApplicationManager.userPassword = ''
 		else:
