@@ -70,6 +70,10 @@ class FileSystem:
 	def __getItem(self, itemId):
 		return self.__db.get(itemId)
 
+	def __getFolderNameList(self, folder):
+		ids = self.__getData(folder.getDataId())
+		return list(map(self.getItemName, ids))
+
 	def __createItem(self, itemName, itemData, itemType, parentFolderId):
 		if not self.itemExists(parentFolderId):
 			return False
@@ -79,6 +83,9 @@ class FileSystem:
 		if not parentItem.isFolder():
 			return False
 
+		if itemName in self.__getFolderNameList(parentItem):
+			return False
+			
 		dataId = self.__dataManager.newData(itemData)
 		item = FileSystemItem(itemType, itemName, self.__createId(), parentFolderId, dataId)
 		self.__saveItem(item)
