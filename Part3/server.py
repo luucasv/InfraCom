@@ -1,5 +1,5 @@
 import socket
-import collections
+from collections import deque
 import pickle
 
 serverHost = ''
