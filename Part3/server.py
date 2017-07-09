@@ -25,8 +25,8 @@ def matchPlayers(sock, addrset, queue):
         while len(queue) >= 2:
                 addr1 = queue.popleft()
                 addr2 = queue.popleft()
-                sock.sendto(pickle.dumps(addr2), addr1)
-                sock.sendto(pickle.dumps(addr1), addr2)
+                sock.sendto(pickle.dumps((addr2, '0')), addr1)
+                sock.sendto(pickle.dumps((addr1, 'X')), addr2)
                 addrset.remove(addr1)
                 addrset.remove(addr2)
 
