@@ -1,4 +1,4 @@
-Essa etapa do projeto foi dividida em 3 partes:
+﻿Essa etapa do projeto foi dividida em 3 partes:
 
 Parte 1: Comunicação via TCP
 A ideia é que o servidor ecoe tudo que ele receber do cliente.
@@ -14,8 +14,8 @@ Tudo que o cliente envia, o servidor ecoa de volta pro cliente.
 Os métodos referentes a essa troca de mensagem são via UDP, podendo haver perda do datagrama.
 Ao final do envio e recebimento da resposta do servidor, o cliente fecha seu socket.
 
-Parte 3: Recebimento de uma pagina HTTP
-A ideia é que o servidor possua um arquivo "home.html" que retorna um arquivo html que tem escrito "Hello World".
+Parte 3: Recebimento de uma página HTTP
+A ideia é que o servidor possua um arquivo "home.html" e que ele retorne tal arquivo caso seja requisitado por algum cliente.
 Nessa parte, foi aberto um socket TCP no servidor na porta 80, o qual fica sendo escutado pelo servidor por alguma tentativa de conexão de um cliente.
 O cliente, se conecta com o servidor e o servidor aceita a conexão.
 O cliente envia uma mensagem no formato HTTP.
