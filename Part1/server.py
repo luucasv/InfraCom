@@ -18,7 +18,7 @@ def http():
 			file = open(f.split(' ')[1], "rb")
 			conn.sendall(qry.encode() + file.read())
 		except IOError:
-			conn.sendall("HTTP/1.1 404 Not Found\r\n".encode())
+			conn.sendall("HTTP/1.1 404 Not Found\r\n\r\n".encode())
 		except:
 			pass
 		finally:
