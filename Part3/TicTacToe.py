@@ -24,20 +24,6 @@ class TicTacToe:
                 self.__rounds = self.__rounds + 1
                 return True
 
-        def checkPlay(self, x, y):
-                try:
-                        x = int(x)
-                        y = int(y)
-                except ValueError:
-                        return False
-                if x < 0 or x >= 3 or y < 0 or y >= 3:
-                        return False
-                if not self.__board[x][y] == '.':
-                        return True
-                else:
-                        return False
-
-
         def __checkWin(self, player):
                 for i in range(3):
                         win = True
