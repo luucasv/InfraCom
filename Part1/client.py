@@ -3,10 +3,11 @@ import sys
 
 def http():
 	sock = socket.socket()
-	svAddr = ('localhost', 80)
+	serverHost = input('Digite o ip do servidor: ')
+	svAddr = (serverHost, 80)
 	sock.connect(svAddr)
 	try:
-		req = 'GET home.html HTTP/1.0\r\n'
+		req = 'GET /home.html HTTP/1.0\r\n\r\n'
 		sock.sendall(req.encode())
 		file = ""
 		dados = True
@@ -25,7 +26,8 @@ def http():
 
 def udp():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	svAddr = ('localhost', 27015)
+	serverHost = input('Digite o ip do servidor: ')
+	svAddr = (serverHost, 27015)
 	myaddr = ('localhost', 27018)
 	sock.bind(myaddr)
 	dados = str(input("Digite uma mensagem a ser enviada: "))
@@ -45,7 +47,8 @@ def udp():
 
 def tcp():
 	sock = socket.socket()
-	svAddr = ('localhost', 27015)
+	serverHost = input('Digite o ip do servidor: ')
+	svAddr = (serverHost, 27015)
 	sock.connect(svAddr)
 
 	try:

@@ -3,7 +3,7 @@ import sys
 
 def http():
 	sock = socket.socket()
-	svAddr = ('localhost', 80)
+	svAddr = ('', 80)
 	sock.bind(svAddr)
 	sock.listen(1)
 	while True:

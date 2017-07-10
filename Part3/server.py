@@ -14,7 +14,12 @@ def handlePlayRequest(addrset, queue, addr):
                 addrset.add(addr)
 
 def getRequest(sock):
-        data, addr = sock.recvfrom(bufferSize)
+        while True:
+                try:
+                        data, addr = sock.recvfrom(bufferSize)
+                        break
+                except:
+                        pass
         msg = pickle.loads(data)
         while msg != playMsg:
                 data, addr = sock.recvfrom(bufferSize)

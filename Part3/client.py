@@ -8,7 +8,7 @@ from TicTacToe import TicTacToe
 bufferSize = 1024
 maxSend = 10 # máximo de vezes que a jogada será enviada
 maxGet = 100 # máximo de vezes que será verificado o recebimento de uma jogada
-maxAck = 100 # máximo de vezes que a socket será verificada na espera de um ack
+maxAck = 10 # máximo de vezes que a socket será verificada na espera de um ack
 ack = 'ACK'
 waitTime = 0.5 # tempo em segundos entre as verificações de ack
 playtime = maxGet * waitTime
@@ -133,12 +133,11 @@ def main():
                         print("Digite o ip da rede local e não o loopback.")
                         continue
                 try:
-                        print("Estabelecendo conexao...")
+                        print("Estabelecendo conexao e esperando um oponente...")
                         (player, turn) = findPlayer(clientSocket, (serverHost, 1337))
                 except:
-                        print('Nao conseguiu estabelecer conexao com o servidor')
+                        print('Nao conseguiu estabelecer conexao.')
                         continue
-                print("Conexao estabelecida.")
                 gameState(clientSocket, turn, player)
         clientSocket.close()
 
