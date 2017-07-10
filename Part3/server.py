@@ -17,14 +17,16 @@ def getRequest(sock):
         while True:
                 try:
                         data, addr = sock.recvfrom(bufferSize)
-                        break
                 except:
-                        pass
-        msg = pickle.loads(data)
-        while msg != playMsg:
-                data, addr = sock.recvfrom(bufferSize)
+                        continue
                 msg = pickle.loads(data)
-        return addr
+                while msg != playMsg:
+                        try:
+                                data, addr = sock.recvfrom(bufferSize)
+                                msg = pickle.loads(data)
+                        except:
+                                continue
+                return addr
         
 def matchPlayers(sock, addrset, queue):
         while len(queue) >= 2:
