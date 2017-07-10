@@ -1,19 +1,19 @@
 import pickle
 import socket
 import select
+import time
 from TicTacToe import TicTacToe
-from time import sleep
 
 # constantes
 bufferSize = 1024
 clientHost = '' # seu ip
-clientPort = 1337
+clientPort = 1338
 maxSend = 10 # máximo de vezes que a jogada será enviada
 maxGet = 10 # máximo de vezes que será verificado o recebimento de uma jogada
 maxAck = 10 # máximo de vezes que a socket será verificada na espera de um ack
 ack = 'ACK'
 waitTime = 5 # tempo em segundos entre as verificações de ack
-serverHost = '10.0.0.105' # colocar o ip do servidor aqui (ler quando for rodar?)
+serverHost = '10.0.0.101' # colocar o ip do servidor aqui (ler quando for rodar?)
 serverPort = 1337
 playtime = maxGet * waitTime
 
@@ -21,8 +21,11 @@ playtime = maxGet * waitTime
 def findPlayer(sock):
         while True:
                 msg = 'PLAY'
-                sock.sendto(pickle.dumps(msg), (serverHost, serverPort))
-                read, _, _ = select.select([sock], [], [])
+                try:
+                        sock.sendto(pickle.dumps(msg), (serverHost, serverPort))
+                except:
+                        raise ConnectionError
+                read, _, _ = select.select([sock], [], [], 0)
                 for s in read:
                         if s == sock:
                                 data, addr = sock.recvfrom(bufferSize)
@@ -33,35 +36,54 @@ def findPlayer(sock):
 
 def sendPlay(sock, play, oponent, game, run):
         for i in range(0, maxSend):
-                sock.sendto(pickle.dumps((play, run)), oponent)
+                try:
+                        sock.sendto(pickle.dumps((play, run)), oponent)
+                except:
+                        pass
                 for j in range(0, maxAck):
-                        read, _, _ = select.select([sock], [], [])
+                        read, _, _ = select.select([sock], [], [], 0)
                         for s in read:
                                 if s == sock:
-                                        data, addr = sock.recvfrom(bufferSize)
+                                        try:
+                                                data, addr = sock.recvfrom(bufferSize)
+                                        except:
+                                                return False
                                         if addr == oponent:
                                                 (msg, r) = pickle.loads(data)
                                                 if msg == ack:
                                                         if r == run:
                                                                 return True
                                                 elif r < run: # old play
-                                                        sock.sendto(pickle.dumps((ack, r)), oponent)
+                                                        try:
+                                                                sock.sendto(pickle.dumps((ack, r)), oponent)
+                                                        except:
+                                                                pass
                 time.sleep(waitTime)
         return False
 
 def getPlay(sock, oponent, game, run):
         for i in range(0, maxGet):
-                read, _, _ = selec.select([sock], [], [])
+                #print('On try number ' + str(i))
+                read, _, _ = select.select([sock], [], [], 0)
                 for s in read:
                         if s == sock:
-                                data, addr = sock.recvfrom(bufferSize)
+                                try:
+                                        data, addr = sock.recvfrom(bufferSize)
+                                except:
+                                        return False
                                 if addr == oponent:
                                         (play, r) = pickle.loads(data)
                                         if r == run and game.makePlay(play[0], play[1]):
-                                                sock.sendto(pickle.dumps((ack, r)), oponent)
+                                                try:
+                                                        sock.sendto(pickle.dumps((ack, r)), oponent)
+                                                except:
+                                                        pass
                                                 return True
-                                        elif r < run: # old play 
-                                                sock.sendto(pickle.dumps((ack, r)), oponent)
+                                        elif r < run: # old play
+                                                try:
+                                                        sock.sendto(pickle.dumps((ack, r)), oponent)
+                                                except:
+                                                        pass
                 time.sleep(waitTime)
         return False
 
@@ -86,12 +108,14 @@ def gameState(sock, turn, oponent):
                                 print('Jogada invalida!')
                                 continue
                 else:
+                        game.showConsole()
                         print('Esperando por uma jogada')
                         received = getPlay(sock, oponent, game, run)
                         if received == False:
                                 handleDisconnect()
                                 return
                         run = run + 1
+        game.showConsole()
         if game.checkWin() == 'Draw':
                 print('O jogo foi um empate!')
         elif game.checkWin() == turn:
@@ -101,11 +125,17 @@ def gameState(sock, turn, oponent):
 
 
 def main():
-        clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        clientSocket.bind((clientHost, clientPort))
-        (player, turn) = findPlayer(clientSocket)
         while True:
-            gameState(clientSocket, turn, (serverHost, serverPort))
+                serverHost = input('Digite o ip do servidor: ')
+                clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                clientSocket.bind((clientHost, clientPort))
+                try:
+                        (player, turn) = findPlayer(clientSocket)
+                except:
+                        print('Nao conseguiu estabelecer conexao com o servidor')
+                        continue
+                gameState(clientSocket, turn, player)
+                clientSocket.close()
 
 if __name__ == '__main__':
         main()

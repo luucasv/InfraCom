@@ -8,7 +8,7 @@ playMsg = 'PLAY'
 bufferSize = 1024
 
 
-def handlePlayRequest(addrset, qeue, addr):
+def handlePlayRequest(addrset, queue, addr):
         if addr not in addrset:
                 queue.append(addr)
                 addrset.add(addr)
@@ -25,10 +25,13 @@ def matchPlayers(sock, addrset, queue):
         while len(queue) >= 2:
                 addr1 = queue.popleft()
                 addr2 = queue.popleft()
-                sock.sendto(pickle.dumps((addr2, '0')), addr1)
-                sock.sendto(pickle.dumps((addr1, 'X')), addr2)
-                addrset.remove(addr1)
-                addrset.remove(addr2)
+                try:
+                        sock.sendto(pickle.dumps((addr2, 'O')), addr1)
+                        sock.sendto(pickle.dumps((addr1, 'X')), addr2)
+                        addrset.remove(addr1)
+                        addrset.remove(addr2)
+                except:
+                        pass
 
 def main():
         serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
