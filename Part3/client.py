@@ -6,33 +6,32 @@ from TicTacToe import TicTacToe
 
 # constantes
 bufferSize = 1024
-clientHost = '' # seu ip
-clientPort = 1338
 maxSend = 10 # máximo de vezes que a jogada será enviada
-maxGet = 10 # máximo de vezes que será verificado o recebimento de uma jogada
+maxGet = 30 # máximo de vezes que será verificado o recebimento de uma jogada
 maxAck = 10 # máximo de vezes que a socket será verificada na espera de um ack
 ack = 'ACK'
-waitTime = 5 # tempo em segundos entre as verificações de ack
-serverHost = '10.0.0.101' # colocar o ip do servidor aqui (ler quando for rodar?)
-serverPort = 1337
+waitTime = 0.5 # tempo em segundos entre as verificações de ack
 playtime = maxGet * waitTime
 
 
-def findPlayer(sock):
+def findPlayer(sock, serverAddr):
         while True:
                 msg = 'PLAY'
                 try:
-                        sock.sendto(pickle.dumps(msg), (serverHost, serverPort))
+                        sock.sendto(pickle.dumps(msg), serverAddr)
                 except:
                         raise ConnectionError
+                time.sleep(waitTime)
                 read, _, _ = select.select([sock], [], [], 0)
                 for s in read:
                         if s == sock:
                                 data, addr = sock.recvfrom(bufferSize)
-                                if addr == (serverHost, serverPort):
+                                print(serverAddr, addr)
+                                if addr == serverAddr:
                                         (player, turn) = pickle.loads(data)
+                                        print((player, turn))
                                         return (player, turn)
-                time.sleep(waitTime)
+                
 
 def sendPlay(sock, play, oponent, game, run):
         for i in range(0, maxSend):
@@ -125,17 +124,25 @@ def gameState(sock, turn, oponent):
 
 
 def main():
+        clientHost = ''
+        clientPort = 0
+        clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        clientSocket.bind((clientHost, clientPort))
         while True:
                 serverHost = input('Digite o ip do servidor: ')
-                clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                clientSocket.bind((clientHost, clientPort))
+                
+                if serverHost == 'localhost':
+                        serverHost = '127.0.0.1'
+                #print("meu socket:", clientSocket.)
                 try:
-                        (player, turn) = findPlayer(clientSocket)
+                        print("Estabelecendo conexao...")
+                        (player, turn) = findPlayer(clientSocket, (serverHost, 1337))
                 except:
                         print('Nao conseguiu estabelecer conexao com o servidor')
                         continue
+                print("Conexao estabelecida.")
                 gameState(clientSocket, turn, player)
-                clientSocket.close()
+        clientSocket.close()
 
 if __name__ == '__main__':
         main()
