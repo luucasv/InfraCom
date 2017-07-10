@@ -33,20 +33,20 @@ def findPlayer(sock):
 
 def sendPlay(sock, play, oponent, game, run):
         for i in range(0, maxSend):
-               sock.sendto(pickle.dumps((play, run)), oponent)
-               for j in range(0, maxAck):
-                       read, _, _ = select.select([sock], [], [])
-                       for s in read:
-                               if s == sock:
-                                       data, addr = sock.recvfrom(bufferSize)
-                                       if addr == oponent:
-                                               (msg, r) = pickle.loads(data)
-                                               if msg == ack:
+                sock.sendto(pickle.dumps((play, run)), oponent)
+                for j in range(0, maxAck):
+                        read, _, _ = select.select([sock], [], [])
+                        for s in read:
+                                if s == sock:
+                                        data, addr = sock.recvfrom(bufferSize)
+                                        if addr == oponent:
+                                                (msg, r) = pickle.loads(data)
+                                                if msg == ack:
                                                         if r == run:
                                                                 return True
-                                               elif r < run: # old play
-                                                       sock.sendto(pickle.dumps((ack, r)), oponent)
-                        time.sleep(waitTime)
+                                                elif r < run: # old play
+                                                        sock.sendto(pickle.dumps((ack, r)), oponent)
+                time.sleep(waitTime)
         return False
 
 def getPlay(sock, oponent, game, run):
@@ -69,35 +69,35 @@ def handleDisconnect():
         print('Jogo desconectado')
 
 def gameState(sock, turn, oponent):
-	game = TicTacToe()
+        game = TicTacToe()
         run = 0
-	while game.checkWin() == 'Active':
-		if turn == game.getTurn():
-			game.showConsole()
+        while game.checkWin() == 'Active':
+                if turn == game.getTurn():
+                        game.showConsole()
                         print('Aviso: se você demorar mais que %d segundos, poderá ser desconectado. Escolha linha e coluna:'%(playtime))
-			play = input().split()
-			if len(play) == 2 and game.makePlay(play[0], play[1]):
-				received = sendPlay(sock, play, oponent, game, run)
+                        play = input().split()
+                        if len(play) == 2 and game.makePlay(play[0], play[1]):
+                                received = sendPlay(sock, play, oponent, game, run)
                                 if received == False:
                                         handleDisconnect()
                                         return
                                 run = run + 1
-			else:
-				print('Jogada invalida!')
+                        else:
+                                print('Jogada invalida!')
                                 continue
-		else:
-			print('Esperando por uma jogada')
+                else:
+                        print('Esperando por uma jogada')
                         received = getPlay(sock, oponent, game, run)
                         if received == False:
                                 handleDisconnect()
                                 return
                         run = run + 1
-	if game.checkWin() == 'Draw':
-		print('O jogo foi um empate!')
-	elif game.checkWin() == turn:
-		print('Vitoria!')
-	else:
-		print('Derrota!')
+        if game.checkWin() == 'Draw':
+                print('O jogo foi um empate!')
+        elif game.checkWin() == turn:
+                print('Vitoria!')
+        else:
+                print('Derrota!')
 
 
 def main():
