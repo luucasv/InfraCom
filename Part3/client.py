@@ -7,8 +7,8 @@ from TicTacToe import TicTacToe
 # constantes
 bufferSize = 1024
 maxSend = 10 # máximo de vezes que a jogada será enviada
-maxGet = 30 # máximo de vezes que será verificado o recebimento de uma jogada
-maxAck = 10 # máximo de vezes que a socket será verificada na espera de um ack
+maxGet = 100 # máximo de vezes que será verificado o recebimento de uma jogada
+maxAck = 100 # máximo de vezes que a socket será verificada na espera de um ack
 ack = 'ACK'
 waitTime = 0.5 # tempo em segundos entre as verificações de ack
 playtime = maxGet * waitTime
@@ -57,12 +57,11 @@ def sendPlay(sock, play, oponent, game, run):
                                                                 sock.sendto(pickle.dumps((ack, r)), oponent)
                                                         except:
                                                                 pass
-                time.sleep(waitTime)
+                        time.sleep(waitTime)
         return False
 
 def getPlay(sock, oponent, game, run):
         for i in range(0, maxGet):
-                #print('On try number ' + str(i))
                 read, _, _ = select.select([sock], [], [], 0)
                 for s in read:
                         if s == sock:
@@ -130,10 +129,9 @@ def main():
         clientSocket.bind((clientHost, clientPort))
         while True:
                 serverHost = input('Digite o ip do servidor: ')
-                
-                if serverHost == 'localhost':
-                        serverHost = '127.0.0.1'
-                #print("meu socket:", clientSocket.)
+                if serverHost == '127.0.0.1' or serverHost == 'localhost' or serverHost == '0.0.0.0':
+                        print("Digite o ip da rede local e não o loopback.")
+                        continue
                 try:
                         print("Estabelecendo conexao...")
                         (player, turn) = findPlayer(clientSocket, (serverHost, 1337))
