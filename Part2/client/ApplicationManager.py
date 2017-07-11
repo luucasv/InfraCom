@@ -99,8 +99,10 @@ class Functions:
 				currentDirId = children[directory + '/']
 				currentDirPath.append(directory)
 			elif directory == '..' and len(currentDirPath) > 0:
-				NetworkManager.sendRequest({'type': 'GET_ITEM_PARENT','itemId': currentDirId, 'login': ApplicationManager.userLogin, 'password': ApplicationManager.userPassword})
-				currentDirId = NetworkManager.recvResponse()['answer']
+				if len(currentDirPath) == 2 and currentDirPath[0] != 'home':
+					currentDirId = Functions.__getUserInfo('shared')
+				else:
+					currentDirId = Functions.__getItemInfo('parent', currentDirId)
 				currentDirPath.pop()
 			elif directory != '.':
 				return (False, originalDirId, originalDirPath)
@@ -155,7 +157,13 @@ class Functions:
 			return
 
 		login = input('Please enter your login: ')
-		password = getpass.getpass('Please enter your password: ')
+		password = 'a'
+		confpassword = 'b'
+		while confpassword != password:
+			password = getpass.getpass('Please enter your password: ')
+			confpassword = getpass.getpass('Please enter your password again: ')
+			if password != confpassword:
+				print('Passwords don\'t match. Please try again')
 		response = Functions.__regiter(login, password)
 		print(response)
 
@@ -196,8 +204,8 @@ class Functions:
 			print(args[0] + ': You have to be logged in!')
 			return
 
-		if len(ApplicationManager.currentDirPath) == 0:
-			print(args[0] + ': Can\'t create folder here')
+		if len(ApplicationManager.currentDirPath) == 0 or (len(ApplicationManager.currentDirPath) == 1 and ApplicationManager.currentDirPath[0] != 'home'):
+			print(args[0] + ': Can\'t create folder here, you need to be inside the home folder or a folder shared with you.')
 			return 
 
 		response = Functions.__creatItem(args[1], 'folder', ApplicationManager.currentDirId)
@@ -292,7 +300,7 @@ class ApplicationManager:
 		'cd': ('(cd newdir) move from actual dir to newdir (.. is parent dir)', Functions.cd),
 		'ls': ('show all items in the current dir', Functions.ls),
 		'mkdir': ('(mkdir dirName) create an empty directory with dirName in the current', Functions.mkdir),
-		'mkfile': ('create a file with name and data as the file given as input saved in local storage', Functions.mkfile),
+		'mkfile': ('(mkfile filePath) create in the working directory the filePath is a path in the local system', Functions.mkfile),
 		'share': ('(share itemName userLogin) share an item with an user', Functions.share),
 		'download': ('(download fileName) download a file to local storage', Functions.download),
 		'clear': ('clear screen', Functions.clear),

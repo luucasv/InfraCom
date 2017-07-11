@@ -16,7 +16,7 @@ def main():
 		print('Unable to connect. Maybe the server is not up.')
 		sys.exit()
 	
-	print('Welcome to InfraComDrive betha 2.0.0')
+	print('Welcome to InfraComDrive 2.0.1\nCaso esta seja sua primeira vez utilizando a ferramenta, digite help')
 	ApplicationManager.createDownloadFolder()
 	while True:
 		ApplicationManager.printWorkingDir()

@@ -174,37 +174,3 @@ class RequestManager:
 		else:
 			return Messages.invalidRequest
 
-def getReq():
-	req = {}
-	req['type'] = input()
-	req['login'] = input()
-	req['password'] = input()
-	if req['type'].startswith('GET_ITEM'):
-		req['itemId'] = input()
-	elif req['type'] == 'CREATE_FILE':
-		req['where'] = input()
-		req['name'] = input()
-		req['data'] = input()
-	elif req['type'] == 'CREATE_FOLDER':
-		req['where'] = input()
-		req['name'] = input()
-	elif req['type'] == 'SHARE_ITEM':
-		req['itemId'] = input()
-		req['toLogin'] = input()
-	elif req['type'] == 'RENAME_ITEM':
-		req['itemId'] = input()
-		req['newName'] = input()
-	elif req['type'] == 'MOVE_ITEM':
-		req['itemId'] = input()
-		req['newParent'] = input()
-	elif req['type'] == 'EDIT_FILE_DATA':
-		req['itemId'] = input()
-		req['newData'] = input()
-	return req
-
-if __name__ == '__main__':
-	rm = Messages()
-	while True:
-		req = getReq()
-		res = rm.processRequest(req)
-		print(str(res))
