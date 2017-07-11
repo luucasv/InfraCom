@@ -26,10 +26,8 @@ def findPlayer(sock, serverAddr):
                 for s in read:
                         if s == sock:
                                 data, addr = sock.recvfrom(bufferSize)
-                                print(serverAddr, addr)
                                 if addr == serverAddr:
                                         (player, turn) = pickle.loads(data)
-                                        print((player, turn))
                                         return (player, turn)
                 
 
