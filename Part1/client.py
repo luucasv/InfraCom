@@ -28,7 +28,7 @@ def udp():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	serverHost = input('Digite o ip do servidor: ')
 	svAddr = (serverHost, 27015)
-	myaddr = ('localhost', 27018)
+	myaddr = ('', 27018)
 	sock.bind(myaddr)
 	dados = str(input("Digite uma mensagem a ser enviada: "))
 	tot = len(dados)

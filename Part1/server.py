@@ -28,7 +28,7 @@ def http():
 
 def udp():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	svAddr = ('localhost', 27015)
+	svAddr = ('', 27015)
 	sock.bind(svAddr)
 	try:
 		while True:
@@ -42,7 +42,7 @@ def udp():
 
 def tcp():
 	sock = socket.socket()
-	svAddr = ('localhost', 27015)
+	svAddr = ('', 27015)
 	sock.bind(svAddr)
 
 	sock.listen(1)
