@@ -7,7 +7,7 @@ def http():
 	svAddr = (serverHost, 80)
 	sock.connect(svAddr)
 	try:
-		req = 'GET /home.html HTTP/1.0\r\n\r\n'
+		req = 'GET home.html HTTP/1.0\r\n\r\n'
 		sock.sendall(req.encode())
 		file = ""
 		dados = True
